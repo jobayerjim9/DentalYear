@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -43,19 +44,20 @@ import static com.dy.dentalyear.controller.helpers.Utils.getMonthForInt;
 
 public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Listener {
     FragmentHomeBinding binding;
-    private ArrayList<PromptResponse> promptResponses=new ArrayList<>();
+    private ArrayList<PromptResponse> promptResponses = new ArrayList<>();
     ModalBottomSheetDialog countryPicker;
-    public HomeFragment() {
-        // Required empty public constructor
+    private FragmentManager fragmentManager;
+    private String selectedCountry;
+
+    public HomeFragment(FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding= DataBindingUtil.inflate(inflater,R.layout.fragment_home,container,false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
         initView();
 
         return binding.getRoot();
@@ -73,18 +75,28 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
                 binding.setLoading(false);
                 promptResponses=response.body();
                 if (promptResponses!=null && promptResponses.size()>0) {
-                    PromptResponse data=promptResponses.get(0);
-                    binding.setData(data);
-                    Log.d("promptResp",data.getAcf().getTodays_fun_holiday_title());
-                    SimpleDateFormat format= new SimpleDateFormat("dd/MM/yyyy");
+                    if (selectedCountry != null) {
+                        for (PromptResponse prompt : promptResponses) {
+                            if (prompt.getAcf().getPrompt_country().toLowerCase().trim().equals(selectedCountry.toLowerCase().trim())) {
+                                binding.setData(prompt);
+                                break;
+                            }
+                        }
+                    } else {
+                        PromptResponse data = promptResponses.get(0);
+                        binding.setData(data);
+                    }
+
+                    //  Log.d("promptResp",binding.getData().getAcf().getTodays_fun_holiday_title());
+                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
                     try {
-                        Date date=format.parse(data.getAcf().getPrompt_date());
-                        String placeHolder=getMonthForInt(date.getMonth())+" "+date.getDate()+"\n"+ DateFormat.format("EEEE", date);
+                        Date date = format.parse(binding.getData().getAcf().getPrompt_date());
+                        String placeHolder = getMonthForInt(date.getMonth()) + " " + date.getDate() + "\n" + DateFormat.format("EEEE", date);
                         binding.promptDate.setText(placeHolder);
-                        setupPosts();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
+                    setupPosts();
                 }
             }
 
@@ -125,7 +137,7 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
 
     @Override
     public void onItemSelected(String tag, Item item) {
-        Log.d(tag,item.getTitle().toString());
+        selectedCountry = item.getTitle().toString();
         for (PromptResponse prompt:promptResponses) {
             if (prompt.getAcf().getPrompt_country().toLowerCase().trim().equals(item.getTitle().toString().toLowerCase().trim())) {
                 binding.setData(prompt);

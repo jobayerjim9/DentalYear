@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
@@ -25,12 +26,13 @@ public class NotesListFragment extends Fragment {
     FragmentNotesListBinding binding;
     private ArrayList<NotesModel> notesModels;
     private NotesRecyclerAdapter notesRecyclerAdapter;
+    private FragmentManager fragmentManager;
 
-    public NotesListFragment() {
+    public NotesListFragment(FragmentManager fragmentManager) {
         // Required empty public constructor
-        notesModels=new ArrayList<>();
+        notesModels = new ArrayList<>();
+        this.fragmentManager = fragmentManager;
     }
-
 
 
     @Override
@@ -46,15 +48,17 @@ public class NotesListFragment extends Fragment {
 
     private void initView() {
         binding.notesListRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        notesRecyclerAdapter=new NotesRecyclerAdapter(requireContext(),notesModels);
+        notesRecyclerAdapter = new NotesRecyclerAdapter(requireContext(), notesModels, fragmentManager);
         binding.notesListRecycler.setAdapter(notesRecyclerAdapter);
         getNotes();
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         getNotes();
+
     }
 
     public void getNotes() {

@@ -49,15 +49,39 @@ public class DatabaseAccess {
     }
     public ArrayList<NotesModel> getAllNotes(int type) {
         String sql="SELECT * FROM notes WHERE type="+type;
-        cursor=sqLiteDatabase.rawQuery(sql,new String[]{});
-        ArrayList<NotesModel> data=new ArrayList<>();
+        cursor = sqLiteDatabase.rawQuery(sql, new String[]{});
+        ArrayList<NotesModel> data = new ArrayList<>();
 
         while (cursor.moveToNext()) {
-            NotesModel notesModel=new NotesModel(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getInt(4));
-           // SkinsModel skinsModel=new SkinsModel(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getInt(3),cursor.getInt(4),cursor.getInt(5),cursor.getInt(6));
+            NotesModel notesModel = new NotesModel(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4));
+            // SkinsModel skinsModel=new SkinsModel(cursor.getInt(0),cursor.getString(1),cursor.getString(2),cursor.getInt(3),cursor.getInt(4),cursor.getInt(5),cursor.getInt(6));
             data.add(notesModel);
         }
         return data;
+    }
+
+    public boolean updateNote(NotesModel notesModel) {
+        String sql = "UPDATE notes SET title='" + notesModel.getTitle() + "'," + "desc='" + notesModel.getDesc() + "'," + "date='" + notesModel.getDate() + "' WHERE id=" + notesModel.getId();
+        try {
+            Log.d("sqlCheck", sql);
+            sqLiteDatabase.execSQL(sql);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteNote(int id) {
+        String sql = "DELETE FROM notes WHERE id=" + id;
+        try {
+            Log.d("sqlCheck", sql);
+            sqLiteDatabase.execSQL(sql);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 //    public Boolean makeFavourite(int id,int favourite) {
 //        try {

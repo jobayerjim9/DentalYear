@@ -1,8 +1,10 @@
 package com.dy.dentalyear.model.local;
 
-public class NotesModel {
-    private int id,type;
-    private String title,desc,date;
+import java.io.Serializable;
+
+public class NotesModel implements Serializable {
+    private int id, type;
+    private String title, desc, date;
 
     public NotesModel(int id, String title, String desc, String date, int type) {
         this.id = id;

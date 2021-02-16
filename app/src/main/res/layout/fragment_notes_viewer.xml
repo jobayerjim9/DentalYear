@@ -2,7 +2,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
+        <import type="android.text.Html" />
+
         <variable
             name="data"
             type="com.dy.dentalyear.model.local.NotesModel" />
@@ -36,61 +40,24 @@
 
                 <View
                     android:id="@+id/divider3"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:layout_weight="1"
                     android:background="@color/white" />
 
-                <ImageView
-                    android:id="@+id/saveNote"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_save" />
             </LinearLayout>
 
             <TextView
-                android:id="@+id/setDateWriting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:drawableEnd="@drawable/ic_baseline_edit_24"
                 android:drawablePadding="8dp"
                 android:fontFamily="@font/montserrat_bold"
-                android:text="Set Date"
-                android:textColor="#8AC9DF"
+                android:text="@{Html.fromHtml(data.title)}"
+                android:textColor="#676767"
                 android:textSize="28sp"
                 app:drawableTint="#8AC9DF" />
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="-80dp"
-            android:background="@drawable/corner_curver_background"
-            android:backgroundTint="#52ADCE"
-            android:gravity="center_vertical"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <EditText
-                android:id="@+id/textView9"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="64dp"
-                android:background="#52ADCE"
-                android:text="@={data.title}"
-                android:drawableEnd="@drawable/ic_baseline_edit_white_24"
-                android:drawablePadding="8dp"
-                android:fontFamily="@font/montserrat_bold"
-                android:gravity="center_vertical"
-                android:hint="Title"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                android:textSize="28sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -104,22 +71,33 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <EditText
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="100dp"
                 android:layout_marginBottom="16dp"
+                android:layout_weight="1"
                 android:background="#8AC9DF"
-                android:drawableEnd="@drawable/ic_baseline_edit_white_24"
                 android:drawablePadding="8dp"
                 android:fontFamily="@font/montserrat"
                 android:gravity="top"
                 android:hint="Enter Your Note.."
-                android:lines="10"
-                android:text="@={data.desc}"
+                android:text="@{Html.fromHtml(data.desc)}"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/dateViewer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/montserrat_medium"
+                android:textAlignment="viewEnd"
+                android:textColor="#DBFFFFFF"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>

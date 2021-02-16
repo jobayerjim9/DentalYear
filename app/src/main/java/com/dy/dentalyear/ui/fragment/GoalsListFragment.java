@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
@@ -23,8 +24,11 @@ public class GoalsListFragment extends Fragment {
     FragmentGoalsListBinding binding;
     private ArrayList<NotesModel> notesModels;
     private NotesRecyclerAdapter notesRecyclerAdapter;
-    public GoalsListFragment() {
-        notesModels=new ArrayList<>();
+    private FragmentManager fragmentManager;
+
+    public GoalsListFragment(FragmentManager fragmentManager) {
+        notesModels = new ArrayList<>();
+        this.fragmentManager = fragmentManager;
     }
 
 
@@ -32,18 +36,24 @@ public class GoalsListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding= DataBindingUtil.inflate(inflater,R.layout.fragment_goals_list,container,false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_goals_list, container, false);
 
         initView();
         return binding.getRoot();
     }
+
     private void initView() {
         binding.goalsListRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        notesRecyclerAdapter=new NotesRecyclerAdapter(requireContext(),notesModels);
+        notesRecyclerAdapter = new NotesRecyclerAdapter(requireContext(), notesModels, fragmentManager);
         binding.goalsListRecycler.setAdapter(notesRecyclerAdapter);
         getNotes();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getNotes();
+    }
 
     public void getNotes() {
         notesModels.clear();
@@ -51,7 +61,7 @@ public class GoalsListFragment extends Fragment {
         databaseAccess.open();
         notesModels.addAll(databaseAccess.getAllNotes(1));
         notesRecyclerAdapter.notifyDataSetChanged();
-        if (notesModels.size()==0) {
+        if (notesModels.size() == 0) {
             binding.noItem.setVisibility(View.VISIBLE);
         }
         else {

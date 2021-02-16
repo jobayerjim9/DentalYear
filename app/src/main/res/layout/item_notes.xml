@@ -11,7 +11,8 @@
     <LinearLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/base"
@@ -52,7 +53,8 @@
                     android:layout_height="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:elevation="1dp"
+                    android:clickable="true"
+                    android:elevation="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_edit_brown" />
@@ -77,6 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:elevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/notes_placeholder_3" />
@@ -86,6 +89,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:elevation="1dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/imageView4"
@@ -97,6 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:elevation="1dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/notes_placeholder_1" />
@@ -111,7 +116,6 @@
                     android:text="@{data.title}"
                     android:textColor="@color/black"
                     android:textSize="22sp"
-                    app:layout_constraintEnd_toStartOf="@+id/imageView8"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Lorem ipsum" />
