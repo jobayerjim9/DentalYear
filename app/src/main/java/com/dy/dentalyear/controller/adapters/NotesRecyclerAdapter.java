@@ -136,12 +136,19 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
             }
         });
 
-
+        holder.binding.executePendingBindings();
     }
+
     @Override
     public long getItemId(int position) {
         return super.getItemId(position);
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
     @Override
     public int getItemCount() {
         return notesModels.size();
@@ -149,9 +156,10 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ItemNotesBinding binding;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            binding= DataBindingUtil.bind(itemView);
+            binding = DataBindingUtil.bind(itemView);
         }
     }
 }

@@ -56,6 +56,7 @@ public class NotesViewerFragment extends Fragment {
                 fragmentManager.popBackStack();
             }
         });
+
         return binding.getRoot();
 
     }

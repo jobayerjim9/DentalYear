@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:background="@color/white"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -40,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Home"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/bottom_nav_text" />
 
             <TextView
                 android:id="@+id/textView2"
@@ -48,7 +50,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Notes"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/bottom_nav_text" />
 
             <TextView
                 android:id="@+id/textView3"
@@ -56,7 +59,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Exhibits"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/bottom_nav_text" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -64,7 +68,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Video"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:textColor="@color/bottom_nav_text" />
         </LinearLayout>
 
         <FrameLayout

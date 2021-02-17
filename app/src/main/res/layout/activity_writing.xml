@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
+        <import type="android.text.Html" />
         <variable
             name="data"
             type="com.dy.dentalyear.model.local.NotesModel" />
@@ -21,7 +22,10 @@
             android:backgroundTint="@color/white"
             android:elevation="1dp"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="48dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -52,7 +56,9 @@
                 android:id="@+id/setDateWriting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="32dp"
                 android:drawableEnd="@drawable/ic_baseline_edit_24"
                 android:drawablePadding="8dp"
                 android:fontFamily="@font/montserrat_bold"
@@ -65,14 +71,17 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginTop="-80dp"
             android:background="@drawable/corner_curver_background"
             android:backgroundTint="#52ADCE"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="32dp"
+            android:paddingTop="80dp"
+            android:paddingEnd="32dp"
+            android:paddingBottom="48dp">
 
             <EditText
                 android:id="@+id/textView9"
@@ -80,14 +89,15 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="64dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="16dp"
                 android:background="#52ADCE"
-                android:text="@={data.title}"
                 android:drawableEnd="@drawable/ic_baseline_edit_white_24"
                 android:drawablePadding="8dp"
                 android:fontFamily="@font/montserrat_bold"
                 android:gravity="center_vertical"
                 android:hint="Title"
+                android:text="@={data.title}"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"
                 android:textSize="28sp" />
@@ -97,26 +107,32 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="-80dp"
-            android:layout_marginBottom="128dp"
+            android:layout_marginBottom="96dp"
             android:background="@drawable/corner_curver_background"
             android:backgroundTint="#8AC9DF"
             android:elevation="-1dp"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:paddingBottom="48dp">
 
             <EditText
+                android:id="@+id/descText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="100dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
                 android:background="#8AC9DF"
                 android:drawableEnd="@drawable/ic_baseline_edit_white_24"
                 android:drawablePadding="8dp"
                 android:fontFamily="@font/montserrat"
                 android:gravity="top"
                 android:hint="Enter Your Note.."
+                android:inputType="text|textMultiLine|textCapSentences"
                 android:lines="10"
+                android:nestedScrollingEnabled="true"
+                android:singleLine="false"
                 android:text="@={data.desc}"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white"

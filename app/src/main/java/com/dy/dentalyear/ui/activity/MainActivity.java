@@ -1,6 +1,7 @@
 package com.dy.dentalyear.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -8,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.dy.dentalyear.R;
 import com.dy.dentalyear.databinding.ActivityMainBinding;
@@ -28,24 +30,20 @@ import kotlin.jvm.functions.Function1;
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     ArrayList<Fragment> allFragments = new ArrayList<>();
+    ArrayList<TextView> bottomNavText = new ArrayList<>();
+    FragmentManager fragmentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding= DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         init();
     }
 
     private void init() {
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        binding.bottomNav.add(new MeowBottomNavigation.Model(0, R.drawable.ic_home_active));
-        binding.bottomNav.add(new MeowBottomNavigation.Model(1, R.drawable.ic_edit));
-        binding.bottomNav.add(new MeowBottomNavigation.Model(2, R.drawable.ic_shopping_cart));
-        binding.bottomNav.add(new MeowBottomNavigation.Model(3, R.drawable.ic_play));
-        allFragments.add(new HomeFragment(fragmentManager));
-        allFragments.add(new NotesFragment(fragmentManager));
-        allFragments.add(new ExhibitsFragment(fragmentManager));
-        allFragments.add(new VideoFragment(fragmentManager));
+        fragmentManager = getSupportFragmentManager();
+        addAllViews();
         for (int i = 0; i < allFragments.size(); i++) {
             fragmentManager.beginTransaction()
                     .add(R.id.mainContainer, allFragments.get(i), AppConstants.HOME_FRAGMENT_TAGS.get(i))
@@ -53,20 +51,39 @@ public class MainActivity extends AppCompatActivity {
                     .addToBackStack(AppConstants.HOME_FRAGMENT_TAGS.get(i)) // name can be null
                     .commit();
         }
-        binding.bottomNav.setBackgroundColor(Color.parseColor("#AAE8FF"));
+        binding.bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+        binding.bottomNav.setBackgroundBottomColor(ContextCompat.getColor(this, R.color.white));
         binding.bottomNav.setOnClickMenuListener(model -> {
-            binding.bottomNav.show(model.getId(), true);
+            binding.bottomNav.show(model.getId(), false);
             return null;
         });
         binding.bottomNav.setOnShowListener(model -> {
+
             Log.d("onShow", "called");
             for (int i = 0; i < allFragments.size(); i++) {
                 fragmentManager.beginTransaction().hide(allFragments.get(i)).commit();
+                bottomNavText.get(i).setPressed(false);
             }
             fragmentManager.beginTransaction().show(allFragments.get(model.getId())).commit();
+            bottomNavText.get(model.getId()).setPressed(true);
             return null;
         });
         binding.bottomNav.show(0, true);
+    }
+
+    private void addAllViews() {
+        binding.bottomNav.add(new MeowBottomNavigation.Model(0, R.drawable.ic_home_active));
+        binding.bottomNav.add(new MeowBottomNavigation.Model(1, R.drawable.ic_edit));
+        binding.bottomNav.add(new MeowBottomNavigation.Model(2, R.drawable.ic_exhibits_new));
+        binding.bottomNav.add(new MeowBottomNavigation.Model(3, R.drawable.ic_play));
+        allFragments.add(new HomeFragment(fragmentManager));
+        allFragments.add(new NotesFragment(fragmentManager));
+        allFragments.add(new ExhibitsFragment(fragmentManager));
+        allFragments.add(new VideoFragment(fragmentManager));
+        bottomNavText.add(binding.textView);
+        bottomNavText.add(binding.textView2);
+        bottomNavText.add(binding.textView3);
+        bottomNavText.add(binding.textView4);
     }
 
     @Override

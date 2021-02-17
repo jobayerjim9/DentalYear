@@ -53,7 +53,7 @@
                 android:layout_margin="16dp"
                 android:drawablePadding="8dp"
                 android:fontFamily="@font/montserrat_bold"
-                android:text="@{Html.fromHtml(data.title)}"
+                android:text="@{data.title}"
                 android:textColor="#676767"
                 android:textSize="28sp"
                 app:drawableTint="#8AC9DF" />
@@ -64,29 +64,50 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="-80dp"
-            android:layout_marginBottom="128dp"
+            android:layout_marginBottom="64dp"
             android:background="@drawable/corner_curver_background"
             android:backgroundTint="#8AC9DF"
             android:elevation="-1dp"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="100dp"
-                android:layout_marginBottom="16dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="85dp"
                 android:layout_weight="1"
-                android:background="#8AC9DF"
-                android:drawablePadding="8dp"
-                android:fontFamily="@font/montserrat"
-                android:gravity="top"
-                android:hint="Enter Your Note.."
-                android:text="@{Html.fromHtml(data.desc)}"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                android:textSize="16sp" />
+                android:fillViewport="true"
+                android:fadeScrollbars="false"
+                android:fastScrollEnabled="true"
+                android:scrollbarStyle="insideInset"
+                android:scrollbarThumbVertical="@drawable/custom_scrollbar"
+                android:scrollbars="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="#8AC9DF"
+                        android:drawablePadding="8dp"
+                        android:fadeScrollbars="false"
+                        android:fontFamily="@font/montserrat"
+                        android:gravity="top"
+                        android:hint="Enter Your Note.."
+                        android:lineSpacingExtra="8sp"
+                        android:overScrollMode="ifContentScrolls"
+                        android:text="@{data.desc}"
+                        android:textColor="@color/white"
+                        android:textColorHint="@color/white"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
 
             <TextView
                 android:id="@+id/dateViewer"
