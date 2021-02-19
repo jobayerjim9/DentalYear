@@ -37,6 +37,7 @@ public class NotesViewerFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notes_viewer, container, false);
         binding.setData(notesModel);
+
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         try {
             Date date = format.parse(notesModel.getDate());

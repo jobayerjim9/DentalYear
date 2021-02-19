@@ -90,12 +90,15 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
                 }
             }
         });
+
+
         holder.binding.base.setOnTouchListener(new OnSwipeTouchListener(context) {
             @Override
             public void onSwipeLeft() {
                 Log.d("onSwipe", "left");
                 // super.onSwipeLeft();
                 holder.binding.deleteButton.setVisibility(View.VISIBLE);
+                holder.binding.base.setAlpha(0.5f);
             }
 
             @Override
@@ -104,8 +107,10 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
                 //super.onSwipeRight();
 
                 holder.binding.deleteButton.setVisibility(View.GONE);
+                holder.binding.base.setAlpha(1f);
             }
         });
+
         holder.binding.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

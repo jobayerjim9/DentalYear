@@ -26,6 +26,7 @@ public class GoalsListFragment extends Fragment {
     private NotesRecyclerAdapter notesRecyclerAdapter;
     private FragmentManager fragmentManager;
 
+
     public GoalsListFragment(FragmentManager fragmentManager) {
         notesModels = new ArrayList<>();
         this.fragmentManager = fragmentManager;
@@ -43,6 +44,7 @@ public class GoalsListFragment extends Fragment {
     }
 
     private void initView() {
+
         binding.goalsListRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         notesRecyclerAdapter = new NotesRecyclerAdapter(requireContext(), notesModels, fragmentManager);
         binding.goalsListRecycler.setAdapter(notesRecyclerAdapter);

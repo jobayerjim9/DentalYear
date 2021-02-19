@@ -45,7 +45,6 @@
                     android:id="@+id/notesChip"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
-
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:fontFamily="@font/montserrat_semibold"

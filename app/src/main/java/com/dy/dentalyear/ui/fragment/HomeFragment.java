@@ -3,6 +3,7 @@ package com.dy.dentalyear.ui.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
@@ -14,18 +15,23 @@ import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.dy.dentalyear.R;
 import com.dy.dentalyear.controller.apis.ApiClient;
 import com.dy.dentalyear.controller.apis.ApiInterface;
+import com.dy.dentalyear.controller.helpers.Utils;
 import com.dy.dentalyear.databinding.FragmentHomeBinding;
 import com.dy.dentalyear.databinding.HomePostLayoutBinding;
 import com.dy.dentalyear.model.constant.AppConstants;
 import com.dy.dentalyear.model.api.PromptResponse;
+import com.dy.dentalyear.ui.activity.SettingsActivity;
 
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -49,6 +55,7 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
     private FragmentManager fragmentManager;
     private String selectedCountry;
 
+
     public HomeFragment(FragmentManager fragmentManager) {
         this.fragmentManager = fragmentManager;
     }
@@ -57,17 +64,50 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false);
         initView();
 
         return binding.getRoot();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String countryCheck = Utils.getCountry(requireContext());
+
+        if (countryCheck != null && promptResponses.size() > 0) {
+            selectedCountry = countryCheck;
+            setupCountry(selectedCountry);
+        }
+
+    }
+
     private void getHomeData(Date date) {
+
+        ImageView menuButton = binding.toolbar.findViewById(R.id.menuButton);
+        PopupMenu popupMenu = new PopupMenu(requireContext(), menuButton);
+        popupMenu.getMenuInflater().inflate(R.menu.home_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                startActivity(new Intent(requireActivity(), SettingsActivity.class));
+                return true;
+            }
+        });
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupMenu.show();
+
+            }
+        });
+
         binding.setLoading(true);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        String today=formatter.format(date);
-        ApiInterface apiInterface= ApiClient.getClient(requireContext()).create(ApiInterface.class);
-        Call<ArrayList<PromptResponse>> call=apiInterface.getPromptByDate("prompt_date",today);
+        String today = formatter.format(date);
+        ApiInterface apiInterface = ApiClient.getClient(requireContext()).create(ApiInterface.class);
+        Call<ArrayList<PromptResponse>> call = apiInterface.getPromptByDate("prompt_date", today);
         call.enqueue(new Callback<ArrayList<PromptResponse>>() {
             @Override
             public void onResponse(Call<ArrayList<PromptResponse>> call, Response<ArrayList<PromptResponse>> response) {
@@ -108,6 +148,7 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
         });
     }
     private void initView() {
+        selectedCountry = Utils.getCountry(requireContext());
         getHomeData(new Date());
         Calendar calendar = Calendar.getInstance();
         binding.datePicker.setOnClickListener(new View.OnClickListener() {
@@ -130,7 +171,7 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
         binding.countryPicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                countryPicker.show(getChildFragmentManager(),"countryPicker");
+                countryPicker.show(getChildFragmentManager(), "countryPicker");
             }
         });
     }
@@ -138,26 +179,32 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
     @Override
     public void onItemSelected(String tag, Item item) {
         selectedCountry = item.getTitle().toString();
-        for (PromptResponse prompt:promptResponses) {
-            if (prompt.getAcf().getPrompt_country().toLowerCase().trim().equals(item.getTitle().toString().toLowerCase().trim())) {
+        setupCountry(selectedCountry);
+
+        if (countryPicker.isVisible()) {
+            countryPicker.dismiss();
+        }
+    }
+
+    private void setupCountry(String selectedCountry) {
+        binding.setLoading(true);
+        for (PromptResponse prompt : promptResponses) {
+            if (prompt.getAcf().getPrompt_country().toLowerCase().trim().equals(selectedCountry.toLowerCase().trim())) {
                 binding.setData(prompt);
                 break;
             }
         }
         setupPosts();
-        if (countryPicker.isVisible()) {
-            countryPicker.dismiss();
-        }
+        binding.setLoading(false);
     }
+
     private void setupPosts() {
-        binding.setLoading(true);
+
         if (binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.AUSTRALIA)) {
-            binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_australia));
-        }
-        else if(binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.CANADA)) {
-            binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_canada));
-        }
-        else if(binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.USA)) {
+            binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_australia));
+        } else if (binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.CANADA)) {
+            binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_canada));
+        } else if (binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.USA)) {
             binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_united_states));
         }
         //Configured 1st Post
@@ -373,7 +420,6 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
 
             }
         });
-        binding.setLoading(false);
 
     }
     private void openPost(HomePostLayoutBinding post1) {

@@ -1,15 +1,18 @@
 package com.dy.dentalyear.ui.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dy.dentalyear.R;
 import com.dy.dentalyear.databinding.ActivityMainBinding;
@@ -32,10 +35,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Fragment> allFragments = new ArrayList<>();
     ArrayList<TextView> bottomNavText = new ArrayList<>();
     FragmentManager fragmentManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         init();
@@ -76,15 +79,16 @@ public class MainActivity extends AppCompatActivity {
         binding.bottomNav.add(new MeowBottomNavigation.Model(1, R.drawable.ic_edit));
         binding.bottomNav.add(new MeowBottomNavigation.Model(2, R.drawable.ic_exhibits_new));
         binding.bottomNav.add(new MeowBottomNavigation.Model(3, R.drawable.ic_play));
-        allFragments.add(new HomeFragment(fragmentManager));
-        allFragments.add(new NotesFragment(fragmentManager));
-        allFragments.add(new ExhibitsFragment(fragmentManager));
-        allFragments.add(new VideoFragment(fragmentManager));
+        allFragments.add(new HomeFragment(getSupportFragmentManager()));
+        allFragments.add(new NotesFragment(getSupportFragmentManager()));
+        allFragments.add(new ExhibitsFragment(getSupportFragmentManager()));
+        allFragments.add(new VideoFragment(getSupportFragmentManager()));
         bottomNavText.add(binding.textView);
         bottomNavText.add(binding.textView2);
         bottomNavText.add(binding.textView3);
         bottomNavText.add(binding.textView4);
     }
+
 
     @Override
     public void onBackPressed() {

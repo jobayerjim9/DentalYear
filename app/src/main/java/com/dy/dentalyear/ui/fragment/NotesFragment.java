@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ public class NotesFragment extends Fragment {
 
     public NotesFragment(FragmentManager fragmentManager) {
         this.fragmentManager = fragmentManager;
+
     }
 
     public void showTopBar() {
@@ -45,21 +47,26 @@ public class NotesFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notes, container, false);
         initView();
+
         return binding.getRoot();
     }
 
     private void initView() {
+        try {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, new NotesListFragment(fragmentManager), "notesList")
+                    .setReorderingAllowed(true)
+                    .addToBackStack("notesList") // name can be null
+                    .commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, new NotesListFragment(fragmentManager), "notesList")
-                .setReorderingAllowed(true)
-                .addToBackStack("notesList") // name can be null
-                .commit();
         binding.chipGroup.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(ChipGroup group, int checkedId) {
-                if (checkedId==R.id.notesChip) {
-                    type=0;
+                if (checkedId == R.id.notesChip) {
+                    type = 0;
                     fragmentManager.popBackStack();
                     fragmentManager.beginTransaction()
                             .replace(R.id.container, new NotesListFragment(fragmentManager), "notesList")

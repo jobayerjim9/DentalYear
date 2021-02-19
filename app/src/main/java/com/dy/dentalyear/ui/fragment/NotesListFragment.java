@@ -28,6 +28,7 @@ public class NotesListFragment extends Fragment {
     private NotesRecyclerAdapter notesRecyclerAdapter;
     private FragmentManager fragmentManager;
 
+
     public NotesListFragment(FragmentManager fragmentManager) {
         // Required empty public constructor
         notesModels = new ArrayList<>();

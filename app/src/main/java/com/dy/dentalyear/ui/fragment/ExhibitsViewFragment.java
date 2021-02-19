@@ -25,6 +25,7 @@ public class ExhibitsViewFragment extends Fragment {
     private SponsorsResponse sponsorsResponse;
     private FragmentExhibitsViewBinding binding;
 
+
     public ExhibitsViewFragment(FragmentManager fragmentManager, SponsorsResponse sponsorsResponse) {
         this.fragmentManager = fragmentManager;
         this.sponsorsResponse = sponsorsResponse;
@@ -41,6 +42,7 @@ public class ExhibitsViewFragment extends Fragment {
     }
 
     private void initView() {
+        setRetainInstance(true);
         binding.back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

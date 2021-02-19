@@ -33,8 +33,10 @@ public class ExhibitsFragment extends Fragment {
     private ArrayList<SponsorsResponse> sponsorsResponses = new ArrayList<>();
     private SponsorsRecyclerAdapter sponsorsRecyclerAdapter;
 
+
     public ExhibitsFragment(FragmentManager fragmentManager) {
         this.fragmentManager = fragmentManager;
+
     }
 
     public void showMain() {
@@ -57,6 +59,7 @@ public class ExhibitsFragment extends Fragment {
     }
 
     private void initView() {
+
         binding.exhibitsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         sponsorsRecyclerAdapter = new SponsorsRecyclerAdapter(requireContext(), sponsorsResponses, fragmentManager);
         binding.exhibitsRecycler.setAdapter(sponsorsRecyclerAdapter);
