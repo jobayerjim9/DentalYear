@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import com.dy.dentalyear.ui.fragment.HomeFragment;
 import com.dy.dentalyear.ui.fragment.NotesFragment;
 import com.dy.dentalyear.ui.fragment.VideoFragment;
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +94,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Do you want to exit Dental Year?")
+                .setPositiveButton("Yes!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }
