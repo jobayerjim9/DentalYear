@@ -6,6 +6,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.dy.dentalyear.model.api.VideoResponse;
+import com.dy.dentalyear.model.local.LocalVideo;
 import com.dy.dentalyear.model.local.NotesModel;
 
 import java.util.ArrayList;
@@ -82,6 +84,30 @@ public class DatabaseAccess {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean addLocalVideo(VideoResponse videoResponse, String path) {
+        try {
+            String sql = "INSERT INTO videos(id,name,path,duration) VALUES(" + videoResponse.getId() + ",'" + videoResponse.getAcf().getVideo_title() + "','" + path + "','" + videoResponse.getAcf().getDuration() + "')";
+            Log.d("sqlCheck", sql);
+            sqLiteDatabase.execSQL(sql);
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public ArrayList<LocalVideo> getAllVideo() {
+        String sql = "SELECT * FROM videos";
+        cursor = sqLiteDatabase.rawQuery(sql, new String[]{});
+        ArrayList<LocalVideo> localVideos = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            LocalVideo localVideo = new LocalVideo(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3));
+            localVideos.add(localVideo);
+        }
+        return localVideos;
     }
 //    public Boolean makeFavourite(int id,int favourite) {
 //        try {

@@ -48,8 +48,9 @@
                 <ImageView
                     android:id="@+id/saveNote"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_save" />
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    app:srcCompat="@drawable/ic_technology" />
             </LinearLayout>
 
             <TextView

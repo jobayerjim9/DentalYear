@@ -36,7 +36,7 @@ public class Utils {
 
     public static String getCountry(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(AppConstants.PREF_NAME, Context.MODE_PRIVATE);
-        return sharedPreferences.getString(AppConstants.COUNTRY_KEY, null);
+        return sharedPreferences.getString(AppConstants.COUNTRY_KEY, AppConstants.USA);
     }
 
     public static boolean getNotificationStatus(Context context) {

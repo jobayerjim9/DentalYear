@@ -1,16 +1,20 @@
 package com.dy.dentalyear.ui.fragment;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -30,9 +34,13 @@ import com.dy.dentalyear.controller.adapters.VideosSelectionAdapter;
 import com.dy.dentalyear.controller.apis.ApiClient;
 import com.dy.dentalyear.controller.apis.ApiInterface;
 import com.dy.dentalyear.controller.helpers.VideoItemClickListener;
+import com.dy.dentalyear.controller.localdb.DatabaseAccess;
 import com.dy.dentalyear.databinding.FragmentVideoBinding;
 import com.dy.dentalyear.model.api.VideoCategoryResponse;
 import com.dy.dentalyear.model.api.VideoResponse;
+import com.dy.dentalyear.model.constant.AppConstants;
+import com.dy.dentalyear.model.local.LocalVideo;
+import com.dy.dentalyear.ui.activity.DownloaderActivity;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -43,6 +51,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -74,8 +83,9 @@ public class VideoFragment extends Fragment implements VideoItemClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_video, container, false);
-
+        isStoragePermissionGranted();
         initView();
+
         return binding.getRoot();
     }
 
@@ -118,27 +128,15 @@ public class VideoFragment extends Fragment implements VideoItemClickListener {
         binding.downloadVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Download " + filteredVideo.get(currentVideo).getAcf().getVideo_title() + "?")
-                        .setPositiveButton("Download", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                downloadVideo(filteredVideo.get(currentVideo));
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).show();
-
+                startActivityForResult(new Intent(requireActivity(), DownloaderActivity.class), 1);
             }
         });
         BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 Toast.makeText(context, "Download Completed!", Toast.LENGTH_SHORT).show();
+
             }
         };
         requireActivity().registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
@@ -149,23 +147,61 @@ public class VideoFragment extends Fragment implements VideoItemClickListener {
 
     }
 
-    private void downloadVideo(VideoResponse videoResponse) {
-        DownloadManager.Query query = new DownloadManager.Query();
+    private VideoResponse currentDownloading;
 
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(videoResponse.getAcf().getDownload_video_link()));
-        request.setTitle(videoResponse.getAcf().getVideo_title());
-        request.allowScanningByMediaScanner();
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, videoResponse.getAcf().getVideo_title() + ".mp4");
-        DownloadManager manager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        manager.enqueue(request);
-        query.setFilterByStatus(DownloadManager.STATUS_FAILED | DownloadManager.STATUS_PAUSED | DownloadManager.STATUS_SUCCESSFUL |
-                DownloadManager.STATUS_RUNNING | DownloadManager.STATUS_PENDING);
-        Cursor c = manager.query(query);
-        Toast.makeText(requireContext(), "Download Started!", Toast.LENGTH_SHORT).show();
+    private void downloadVideo(VideoResponse videoResponse) {
+        DatabaseAccess databaseAccess = DatabaseAccess.getInstance(requireContext());
+        databaseAccess.open();
+        ArrayList<LocalVideo> localVideos = databaseAccess.getAllVideo();
+        for (LocalVideo localVideo : localVideos) {
+            if (videoResponse.getId() == localVideo.getId()) {
+                Toast.makeText(requireContext(), "Already Downloaded!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        try {
+            currentDownloading = videoResponse;
+            DownloadManager.Query query = new DownloadManager.Query();
+            DownloadManager.Request request = new DownloadManager.Request(Uri.parse(videoResponse.getAcf().getDownload_video_link()));
+            request.setTitle(videoResponse.getAcf().getVideo_title());
+            request.allowScanningByMediaScanner();
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, videoResponse.getAcf().getVideo_title() + ".mp4");
+            DownloadManager manager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            manager.enqueue(request);
+            query.setFilterByStatus(DownloadManager.STATUS_FAILED | DownloadManager.STATUS_PAUSED | DownloadManager.STATUS_SUCCESSFUL |
+                    DownloadManager.STATUS_RUNNING | DownloadManager.STATUS_PENDING);
+            Cursor c = manager.query(query);
+            databaseAccess.addLocalVideo(currentDownloading, Environment.DIRECTORY_DOWNLOADS + "/" + videoResponse.getAcf().getVideo_title() + ".mp4");
+            databaseAccess.close();
+            Toast.makeText(requireContext(), "Download Started!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }
 
     }
 
+    final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+    public boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("DetailsActivity", "Permission is granted");
+                return true;
+            } else {
+
+                Log.v("DetailsActivity", "Permission is revoked");
+                ActivityCompat.requestPermissions(requireActivity(), permissions, 1);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("DetailsActivity", "Permission is granted");
+            return true;
+        }
+    }
     private void filterVideo(int categoryId) {
         binding.seeAllVideo.setVisibility(View.VISIBLE);
         binding.downloadVideo.setVisibility(View.VISIBLE);
@@ -186,6 +222,25 @@ public class VideoFragment extends Fragment implements VideoItemClickListener {
         super.onDestroyView();
         if (player != null) {
             player.release();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 100 & data != null) {
+            if (player != null) {
+                player.release();
+                binding.playerView.setPlayer(null);
+            }
+            binding.textView17.setText(data.getStringExtra("name"));
+            binding.textView18.setText(data.getStringExtra("duration"));
+            player = new SimpleExoPlayer.Builder(requireContext()).build();
+            binding.playerView.setPlayer(player);
+            MediaItem mediaItem = MediaItem.fromUri(Environment.getExternalStorageDirectory() + "/" + data.getStringExtra("path"));
+            player.setMediaItem(mediaItem);
+            player.prepare();
+            videosSelectionAdapter.notifyDataSetChanged();
         }
     }
 
@@ -281,5 +336,14 @@ public class VideoFragment extends Fragment implements VideoItemClickListener {
         videosSelectionAdapter.notifyDataSetChanged();
 
 
+    }
+
+    @Override
+    public void onDownloadVideo(int position) {
+        if (isStoragePermissionGranted()) {
+            downloadVideo(filteredVideo.get(position));
+        } else {
+            Toast.makeText(requireContext(), "Please Grant Permission", Toast.LENGTH_SHORT).show();
+        }
     }
 }

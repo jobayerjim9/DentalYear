@@ -21,7 +21,7 @@ public interface ApiInterface {
     Call<ArrayList<PromptResponse>> getPromptByDate(@Query("filter[meta_key]") String name, @Query("filter[meta_value]") String date);
 
     @GET(SPONSOR_API)
-    Call<ArrayList<SponsorsResponse>> getAllSponsors();
+    Call<ArrayList<SponsorsResponse>> getAllSponsors(@Query("per_page") int per_page);
 
     @GET(VIDEO_CATEGORY_API)
     Call<ArrayList<VideoCategoryResponse>> getAllVideoCategory();

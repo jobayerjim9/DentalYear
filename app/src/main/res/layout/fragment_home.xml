@@ -84,20 +84,37 @@
                         android:layout_weight="1"
                         android:background="@color/white" />
 
-                    <TextView
-                        android:id="@+id/promptDate"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:drawableEnd="@drawable/ic_arrow_right"
-                        android:drawablePadding="8dp"
-                        android:fontFamily="@font/montserrat"
-                        android:lines="2"
-                        android:text="April 4\nSaturday"
-                        android:textAlignment="center"
-                        android:textAllCaps="true"
-                        android:textColor="#565656" />
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/dateBack"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            app:srcCompat="@drawable/ic_baseline_arrow_back_ios_24" />
+
+                        <TextView
+                            android:id="@+id/promptDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:drawablePadding="8dp"
+                            android:fontFamily="@font/montserrat"
+                            android:lines="2"
+                            android:text="April 4\nSaturday"
+                            android:textAlignment="center"
+                            android:textAllCaps="true"
+                            android:textColor="#565656" />
+
+                        <ImageView
+                            android:id="@+id/dateForward"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_24" />
+
+                    </LinearLayout>
 
                     <View
                         android:id="@+id/divider2"

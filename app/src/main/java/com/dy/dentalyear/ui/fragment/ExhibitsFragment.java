@@ -1,5 +1,7 @@
 package com.dy.dentalyear.ui.fragment;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.databinding.DataBindingUtil;
@@ -63,13 +65,20 @@ public class ExhibitsFragment extends Fragment {
         binding.exhibitsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         sponsorsRecyclerAdapter = new SponsorsRecyclerAdapter(requireContext(), sponsorsResponses, fragmentManager);
         binding.exhibitsRecycler.setAdapter(sponsorsRecyclerAdapter);
+        binding.wantHereCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://dentalyear.com/sponsor/"));
+                startActivity(browserIntent);
+            }
+        });
         getAllSponsorsData();
     }
 
     private void getAllSponsorsData() {
         binding.setLoading(true);
         ApiInterface apiInterface = ApiClient.getClient(requireContext()).create(ApiInterface.class);
-        Call<ArrayList<SponsorsResponse>> call = apiInterface.getAllSponsors();
+        Call<ArrayList<SponsorsResponse>> call = apiInterface.getAllSponsors(100);
         call.enqueue(new Callback<ArrayList<SponsorsResponse>>() {
             @Override
             public void onResponse(Call<ArrayList<SponsorsResponse>> call, Response<ArrayList<SponsorsResponse>> response) {
@@ -78,6 +87,7 @@ public class ExhibitsFragment extends Fragment {
                 if (response.body() != null) {
                     sponsorsResponses.clear();
                     sponsorsResponses.addAll(response.body());
+                    Log.d("exhibitsSize", sponsorsResponses.size() + "");
                     sponsorsRecyclerAdapter.notifyDataSetChanged();
                 }
 

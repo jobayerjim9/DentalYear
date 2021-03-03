@@ -1,6 +1,7 @@
 package com.dy.dentalyear.controller.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import com.dy.dentalyear.controller.helpers.VideoItemClickListener;
 import com.dy.dentalyear.databinding.ItemVideoSelectorBinding;
 import com.dy.dentalyear.databinding.ItemVideoSelectorGridBinding;
 import com.dy.dentalyear.model.api.VideoResponse;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 
@@ -52,6 +54,25 @@ public class VideosSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     videoItemClickListener.onClickVideo(position);
                 }
             });
+            viewHolder.binding.downloadVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new MaterialAlertDialogBuilder(context)
+                            .setTitle("Download " + item.getAcf().getVideo_title() + "?")
+                            .setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    videoItemClickListener.onDownloadVideo(position);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            }).show();
+                }
+            });
             viewHolder.binding.executePendingBindings();
         } else if (holder instanceof ViewHolderGrid) {
             ViewHolderGrid viewHolderGrid = (ViewHolderGrid) holder;
@@ -62,11 +83,29 @@ public class VideosSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     videoItemClickListener.onClickVideo(position);
                 }
             });
+            viewHolderGrid.binding.downloadVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new MaterialAlertDialogBuilder(context)
+                            .setTitle("Download " + item.getAcf().getVideo_title() + "?")
+                            .setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    videoItemClickListener.onDownloadVideo(position);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            }).show();
+                }
+            });
             viewHolderGrid.binding.executePendingBindings();
         }
 
     }
-
     @Override
     public int getItemCount() {
         return videoResponses.size();

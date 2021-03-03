@@ -48,13 +48,13 @@ import retrofit2.Response;
 
 import static com.dy.dentalyear.controller.helpers.Utils.getMonthForInt;
 
-public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Listener {
+public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Listener, View.OnClickListener {
     FragmentHomeBinding binding;
     private ArrayList<PromptResponse> promptResponses = new ArrayList<>();
     ModalBottomSheetDialog countryPicker;
     private FragmentManager fragmentManager;
     private String selectedCountry;
-
+    private Calendar activeDay;
 
     public HomeFragment(FragmentManager fragmentManager) {
         this.fragmentManager = fragmentManager;
@@ -83,29 +83,10 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
 
     }
 
-    private void getHomeData(Date date) {
-
-        ImageView menuButton = binding.toolbar.findViewById(R.id.menuButton);
-        PopupMenu popupMenu = new PopupMenu(requireContext(), menuButton);
-        popupMenu.getMenuInflater().inflate(R.menu.home_menu, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                startActivity(new Intent(requireActivity(), SettingsActivity.class));
-                return true;
-            }
-        });
-        menuButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupMenu.show();
-
-            }
-        });
-
+    private void getHomeData(Calendar calendar) {
         binding.setLoading(true);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        String today = formatter.format(date);
+        String today = formatter.format(calendar.getTime());
         ApiInterface apiInterface = ApiClient.getClient(requireContext()).create(ApiInterface.class);
         Call<ArrayList<PromptResponse>> call = apiInterface.getPromptByDate("prompt_date", today);
         call.enqueue(new Callback<ArrayList<PromptResponse>>() {
@@ -149,22 +130,42 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
     }
     private void initView() {
         selectedCountry = Utils.getCountry(requireContext());
-        getHomeData(new Date());
+        activeDay = Calendar.getInstance();
+        activeDay.setTime(new Date());
+        getHomeData(activeDay);
         Calendar calendar = Calendar.getInstance();
         binding.datePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerDialog datePickerDialog=new DatePickerDialog(requireContext(), new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        Date date=new Date(year-1900,month,dayOfMonth);
-                        getHomeData(date);
+                        Date date = new Date(year - 1900, month, dayOfMonth);
+                        activeDay.setTime(date);
+                        getHomeData(activeDay);
                     }
-                },calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
             }
         });
-        countryPicker= new ModalBottomSheetDialog.Builder()
+        ImageView menuButton = binding.toolbar.findViewById(R.id.menuButton);
+        PopupMenu popupMenu = new PopupMenu(requireContext(), menuButton);
+        popupMenu.getMenuInflater().inflate(R.menu.home_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                startActivity(new Intent(requireActivity(), SettingsActivity.class));
+                return true;
+            }
+        });
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupMenu.show();
+
+            }
+        });
+        countryPicker = new ModalBottomSheetDialog.Builder()
                 .setHeader("Choose a country!")
                 .add(R.menu.country)
                 .build();
@@ -172,6 +173,20 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
             @Override
             public void onClick(View v) {
                 countryPicker.show(getChildFragmentManager(), "countryPicker");
+            }
+        });
+        binding.dateForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activeDay.add(Calendar.DAY_OF_MONTH, 1);
+                getHomeData(activeDay);
+            }
+        });
+        binding.dateBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activeDay.add(Calendar.DAY_OF_MONTH, -1);
+                getHomeData(activeDay);
             }
         });
     }
@@ -205,23 +220,46 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
         } else if (binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.CANADA)) {
             binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_canada));
         } else if (binding.getData().getAcf().getPrompt_country().trim().equals(AppConstants.USA)) {
-            binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_united_states));
+            binding.countryPicker.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_united_states));
         }
         //Configured 1st Post
-        HomePostLayoutBinding post1=binding.post1;
-        post1.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post1));
+        HomePostLayoutBinding post1 = binding.post1;
+        post1.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post1));
         post1.setTitle("How To \n" +
                 "Celebrate?");
         post1.setOpen(false);
         post1.postText.setText(Html.fromHtml(binding.getData().getAcf().getHow_to_celebrate()));
-        post1.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.post_description_1));
+        post1.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.post_description_1));
+        post1.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post1.getOpen()) {
+                    openPost(post1);
+                } else {
+                    closePost(post1);
+                }
+                post1.setOpen(!post1.getOpen());
+
+            }
+        });
         post1.dropdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!post1.getOpen()) {
                     openPost(post1);
+                } else {
+                    closePost(post1);
                 }
-                else {
+                post1.setOpen(!post1.getOpen());
+
+            }
+        });
+        post1.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post1.getOpen()) {
+                    openPost(post1);
+                } else {
                     closePost(post1);
                 }
                 post1.setOpen(!post1.getOpen());
@@ -230,22 +268,45 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
         });
 
         //Configured 2nd Post
-        HomePostLayoutBinding post2=binding.post2;
-        post2.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post2));
+        HomePostLayoutBinding post2 = binding.post2;
+        post2.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post2));
         post2.setTitle("Daily Marketing\n" +
                 "Tip");
-        post2.base.setElevation((float)-1.0);
+        post2.base.setElevation((float) -1.0);
         post2.setOpen(false);
         post2.postText.setText(Html.fromHtml(binding.getData().getAcf().getDaily_marketing_tip()));
-        post2.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_daily_marketing));
-        post2.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.daily_marketing_tip_description));
+        post2.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_post_daily_marketing));
+        post2.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.daily_marketing_tip_description));
+        post2.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post2.getOpen()) {
+                    openPost(post2);
+                } else {
+                    closePost(post2);
+                }
+                post2.setOpen(!post2.getOpen());
+
+            }
+        });
+        post2.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post2.getOpen()) {
+                    openPost(post2);
+                } else {
+                    closePost(post2);
+                }
+                post2.setOpen(!post2.getOpen());
+
+            }
+        });
         post2.dropdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!post2.getOpen()) {
                     openPost(post2);
-                }
-                else {
+                } else {
                     closePost(post2);
                 }
                 post2.setOpen(!post2.getOpen());
@@ -268,32 +329,77 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
             public void onClick(View v) {
                 if (!post3.getOpen()) {
                     openPost(post3);
-                }
-                else {
+                } else {
                     closePost(post3);
                 }
                 post3.setOpen(!post3.getOpen());
 
             }
         });
+        post3.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post3.getOpen()) {
+                    openPost(post3);
+                } else {
+                    closePost(post3);
+                }
+                post3.setOpen(!post3.getOpen());
 
+            }
+        });
+        post3.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post3.getOpen()) {
+                    openPost(post3);
+                } else {
+                    closePost(post3);
+                }
+                post3.setOpen(!post3.getOpen());
+
+            }
+        });
         //Configured 4th Post
-        HomePostLayoutBinding post4=binding.post4;
-        post4.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post4));
+        HomePostLayoutBinding post4 = binding.post4;
+        post4.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post4));
         post4.setTitle("How To \n" +
                 "Maximize Post?");
-        post4.base.setElevation((float)-1.2);
+        post4.base.setElevation((float) -1.2);
         post4.setOpen(false);
         post4.postText.setText(Html.fromHtml(binding.getData().getAcf().getHow_to_maximize_post()));
-        post4.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_maximize_post));
-        post4.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.maximize_post_description));
+        post4.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_post_maximize_post));
+        post4.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.maximize_post_description));
         post4.dropdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!post4.getOpen()) {
                     openPost(post4);
+                } else {
+                    closePost(post4);
                 }
-                else {
+                post4.setOpen(!post4.getOpen());
+
+            }
+        });
+        post4.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post4.getOpen()) {
+                    openPost(post4);
+                } else {
+                    closePost(post4);
+                }
+                post4.setOpen(!post4.getOpen());
+
+            }
+        });
+        post4.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post4.getOpen()) {
+                    openPost(post4);
+                } else {
                     closePost(post4);
                 }
                 post4.setOpen(!post4.getOpen());
@@ -303,10 +409,10 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
 
 
         //Configured 5th Post
-        HomePostLayoutBinding post5=binding.post5;
-        post5.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post5));
+        HomePostLayoutBinding post5 = binding.post5;
+        post5.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post5));
         post5.setTitle("Weekly Marketing\nExercise");
-        post5.base.setElevation((float)-1.3);
+        post5.base.setElevation((float) -1.3);
         post5.setOpen(false);
         post5.postText.setText(Html.fromHtml(binding.getData().getAcf().getWeekly_marketing_exercises()));
         post5.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_weekly_marketing));
@@ -316,93 +422,181 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
             public void onClick(View v) {
                 if (!post5.getOpen()) {
                     openPost(post5);
-                }
-                else {
+                } else {
                     closePost(post5);
                 }
                 post5.setOpen(!post5.getOpen());
 
             }
         });
+        post5.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post5.getOpen()) {
+                    openPost(post5);
+                } else {
+                    closePost(post5);
+                }
+                post5.setOpen(!post5.getOpen());
 
+            }
+        });
+        post5.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post5.getOpen()) {
+                    openPost(post5);
+                } else {
+                    closePost(post5);
+                }
+                post5.setOpen(!post5.getOpen());
+
+            }
+        });
         //Configured 6th Post
-        HomePostLayoutBinding post6=binding.post6;
-        post6.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post6));
+        HomePostLayoutBinding post6 = binding.post6;
+        post6.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post6));
         post6.setTitle("Marketing Trends\n" +
                 "& News");
-        post6.base.setElevation((float)-1.4);
+        post6.base.setElevation((float) -1.4);
         post6.setOpen(false);
         post6.postText.setText(Html.fromHtml(binding.getData().getAcf().getMarketing_trends_news_for_the_day()));
-        post6.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_marketing_trends));
-        post6.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.marketing_trends_description));
+        post6.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_post_marketing_trends));
+        post6.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.marketing_trends_description));
         post6.dropdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!post6.getOpen()) {
                     openPost(post6);
-                }
-                else {
+                } else {
                     closePost(post6);
                 }
                 post6.setOpen(!post6.getOpen());
 
             }
         });
+        post6.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post6.getOpen()) {
+                    openPost(post6);
+                } else {
+                    closePost(post6);
+                }
+                post6.setOpen(!post6.getOpen());
 
+            }
+        });
+        post6.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post6.getOpen()) {
+                    openPost(post6);
+                } else {
+                    closePost(post6);
+                }
+                post6.setOpen(!post6.getOpen());
+
+            }
+        });
         //Configured 7th Post
-        HomePostLayoutBinding post7=binding.post7;
-        post7.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post7));
+        HomePostLayoutBinding post7 = binding.post7;
+        post7.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post7));
         post7.setTitle("This Date \n" +
                 "In History");
-        post7.base.setElevation((float)-1.5);
+        post7.base.setElevation((float) -1.5);
         post7.setOpen(false);
         post7.postText.setText(Html.fromHtml(binding.getData().getAcf().getThis_date_in_history()));
-        post7.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_history));
-        post7.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.this_day_description));
+        post7.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_post_history));
+        post7.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.this_day_description));
         post7.dropdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!post7.getOpen()) {
                     openPost(post7);
-                }
-                else {
+                } else {
                     closePost(post7);
                 }
                 post7.setOpen(!post7.getOpen());
 
             }
         });
+        post7.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post7.getOpen()) {
+                    openPost(post7);
+                } else {
+                    closePost(post7);
+                }
+                post7.setOpen(!post7.getOpen());
 
+            }
+        });
+        post7.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post7.getOpen()) {
+                    openPost(post7);
+                } else {
+                    closePost(post7);
+                }
+                post7.setOpen(!post7.getOpen());
+
+            }
+        });
         //Configured 8th Post
-        HomePostLayoutBinding post8=binding.post8;
-        post8.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post8));
+        HomePostLayoutBinding post8 = binding.post8;
+        post8.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post8));
         post8.setTitle("Industry\n" +
                 "Events");
-        post8.base.setElevation((float)-1.6);
+        post8.base.setElevation((float) -1.6);
         post8.setOpen(false);
         post8.postText.setText(Html.fromHtml(binding.getData().getAcf().getIndustry_events()));
-        post8.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_industry_event));
-        post8.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.industry_event_description));
+        post8.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_post_industry_event));
+        post8.descriptionImage.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.industry_event_description));
         post8.dropdownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!post8.getOpen()) {
                     openPost(post8);
-                }
-                else {
+                } else {
                     closePost(post8);
                 }
                 post8.setOpen(!post8.getOpen());
 
             }
         });
+        post8.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post8.getOpen()) {
+                    openPost(post8);
+                } else {
+                    closePost(post8);
+                }
+                post8.setOpen(!post8.getOpen());
 
+            }
+        });
+        post8.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post8.getOpen()) {
+                    openPost(post8);
+                } else {
+                    closePost(post8);
+                }
+                post8.setOpen(!post8.getOpen());
+
+            }
+        });
         //Configured 9th Post
-        HomePostLayoutBinding post9=binding.post9;
-        post9.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),R.color.post9));
+        HomePostLayoutBinding post9 = binding.post9;
+        post9.base.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.post9));
         post9.setTitle("Looking \n" +
                 "Ahead");
-        post9.base.setElevation((float)-1.7);
+        post9.base.setElevation((float) -1.7);
         post9.setOpen(false);
         post9.postText.setText(Html.fromHtml(binding.getData().getAcf().getLooking_ahead()));
         post9.tinyImage.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_post_ahead));
@@ -412,8 +606,7 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
             public void onClick(View v) {
                 if (!post9.getOpen()) {
                     openPost(post9);
-                }
-                else {
+                } else {
                     closePost(post9);
                 }
                 post9.setOpen(!post9.getOpen());
@@ -421,6 +614,30 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
             }
         });
 
+        post9.base.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post9.getOpen()) {
+                    openPost(post9);
+                } else {
+                    closePost(post9);
+                }
+                post9.setOpen(!post9.getOpen());
+
+            }
+        });
+        post9.textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!post9.getOpen()) {
+                    openPost(post9);
+                } else {
+                    closePost(post9);
+                }
+                post9.setOpen(!post9.getOpen());
+
+            }
+        });
     }
     private void openPost(HomePostLayoutBinding post1) {
         post1.dropdownButton.setImageDrawable(ContextCompat.getDrawable(requireContext(),R.drawable.ic_up_arrow));
@@ -482,6 +699,8 @@ public class HomeFragment extends Fragment implements ModalBottomSheetDialog.Lis
     }
 
 
+    @Override
+    public void onClick(View v) {
 
-
+    }
 }
