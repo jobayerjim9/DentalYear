@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.Purchase;
 import com.bumptech.glide.Glide;
 import com.dy.dentalyear.R;
 import com.dy.dentalyear.databinding.ActivitySplashBinding;
@@ -27,7 +29,7 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                startActivity(new Intent(SplashActivity.this, PurchaseActivity.class));
                 finish();
             }
         }.start();

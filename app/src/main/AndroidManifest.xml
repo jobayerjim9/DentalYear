@@ -9,13 +9,14 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DentalYear"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.activity.DownloaderActivity"></activity>
+        <activity android:name=".ui.activity.PurchaseActivity"></activity>
+        <activity android:name=".ui.activity.DownloaderActivity" />
         <activity android:name=".ui.activity.SettingsActivity" />
         <activity android:name=".ui.activity.SplashActivity">
             <intent-filter>
