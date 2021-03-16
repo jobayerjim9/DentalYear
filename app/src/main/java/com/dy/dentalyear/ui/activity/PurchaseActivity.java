@@ -18,11 +18,14 @@ import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchaseHistoryRecord;
+import com.android.billingclient.api.PurchaseHistoryResponseListener;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
 import com.android.billingclient.api.SkuDetailsResponseListener;
 import com.dy.dentalyear.R;
+import com.dy.dentalyear.controller.helpers.Utils;
 import com.dy.dentalyear.databinding.ActivityPurchaseBinding;
 
 import org.imaginativeworld.whynotimagecarousel.CarouselItem;
@@ -44,8 +47,8 @@ public class PurchaseActivity extends AppCompatActivity implements PurchasesUpda
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_purchase);
         ArrayList<CarouselItem> carouselItems = new ArrayList<>();
-        carouselItems.add(new CarouselItem(R.drawable.monthly_plan, "Monthly"));
-        carouselItems.add(new CarouselItem(R.drawable.annual_plan, "Yearly"));
+        carouselItems.add(new CarouselItem(R.drawable.monthly_plan, ""));
+        carouselItems.add(new CarouselItem(R.drawable.annual_plan, ""));
         binding.carousel.addData(carouselItems);
         binding.carousel.setOnScrollListener(new CarouselOnScrollListener() {
             @Override
@@ -60,7 +63,7 @@ public class PurchaseActivity extends AppCompatActivity implements PurchasesUpda
             }
         });
         billingClient = BillingClient.newBuilder(this)
-                .setListener(this::onPurchasesUpdated)
+                .setListener(this)
                 .enablePendingPurchases()
                 .build();
         billingClient.startConnection(new BillingClientStateListener() {
@@ -68,6 +71,7 @@ public class PurchaseActivity extends AppCompatActivity implements PurchasesUpda
             public void onBillingSetupFinished(BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     // The BillingClient is ready. You can query purchases here.
+
                     List<String> skuList = new ArrayList<>();
                     skuList.add("com.dentalyear.monthly30free");
                     skuList.add("com.dyear.dentalyear.yr365");
@@ -82,6 +86,13 @@ public class PurchaseActivity extends AppCompatActivity implements PurchasesUpda
                                     PurchaseActivity.this.skuDetailsList = skuDetailsList;
                                 }
                             });
+                    billingClient.queryPurchaseHistoryAsync(BillingClient.SkuType.SUBS, new PurchaseHistoryResponseListener() {
+                        @Override
+                        public void onPurchaseHistoryResponse(@NonNull BillingResult billingResult, @androidx.annotation.Nullable List<PurchaseHistoryRecord> list) {
+
+                        }
+                    });
+
                 }
             }
 
@@ -136,11 +147,14 @@ public class PurchaseActivity extends AppCompatActivity implements PurchasesUpda
             public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     // Handle the success of the consume operation.
+                    Utils.subscribe(PurchaseActivity.this, true);
                     startActivity(new Intent(PurchaseActivity.this, MainActivity.class));
+                    finish();
                 }
             }
         };
 
         billingClient.consumeAsync(consumeParams, listener);
     }
+
 }

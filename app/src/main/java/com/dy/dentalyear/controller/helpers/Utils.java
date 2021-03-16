@@ -29,6 +29,16 @@ public class Utils {
         sharedPreferences.edit().putString(AppConstants.COUNTRY_KEY, country).apply();
     }
 
+    public static void subscribe(Context context, boolean purchase) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(AppConstants.PREF_NAME, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean(AppConstants.SUBS_KEY, purchase).apply();
+    }
+
+    public static boolean isSubscribe(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(AppConstants.PREF_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean(AppConstants.SUBS_KEY, false);
+    }
+
     public static void setNotification(Context context, boolean isOn) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(AppConstants.PREF_NAME, Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean(AppConstants.NOTIFICATION_KEY, isOn).apply();
